@@ -103,7 +103,7 @@ public class MessageProcessor extends BaseOperator {
                                 logs.put("destinationIp", "");
                             } else {
                                 String userIp = sdList.get(0);
-                                String destIp = sdList.get(0);
+                                String destIp = sdList.get(1);
                                 logs.put("userIp", userIp);
                                 logs.put("destinationIp", destIp);
                             }

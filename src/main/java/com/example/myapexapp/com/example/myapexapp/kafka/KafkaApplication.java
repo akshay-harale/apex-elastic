@@ -31,10 +31,9 @@ public class KafkaApplication implements StreamingApplication{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        output.setIdField("time");
+        output.setIdField("uuid");
         output.setIndexName("firelog");
         output.setType("log");
-        dag.setAttribute(Context.OperatorContext.CHECKPOINT_WINDOW_COUNT,1000);
 
         dag.addStream("toElastic",processor.output,output.input);
     }
