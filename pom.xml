@@ -16,6 +16,7 @@
         <!-- change this if you desire to use a different version of Apex Core -->
         <apex.version>3.5.0-SNAPSHOT</apex.version>
         <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
+
     </properties>
 
     <build>
