@@ -4,7 +4,7 @@
 package com.example.myapexapp;
 
 import com.datatorrent.api.LocalMode;
-import com.example.myapexapp.com.example.myapexapp.kafka.KafkaApplication;
+import com.sample.KafkaApplicationOne;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -13,17 +13,16 @@ import org.junit.Test;
  */
 public class ApplicationTest {
 
-  @Test
-  public void testKafkaApplication() throws Exception
-  {
+    @Test
+    public void testKafkaApplication() throws Exception {
 
-    LocalMode lma = LocalMode.newInstance();
-    Configuration conf = new Configuration(false);
-    conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties.xml"));
-    lma.prepareDAG(new KafkaApplication(), conf);
-    LocalMode.Controller lc = lma.getController();
+        LocalMode lma = LocalMode.newInstance();
+        Configuration conf = new Configuration(false);
+        conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties.xml"));
+        lma.prepareDAG(new KafkaApplicationOne(), conf);
+        LocalMode.Controller lc = lma.getController();
 
-    lc.run(120000);
-  }
+        lc.run(120000);
+    }
 
 }

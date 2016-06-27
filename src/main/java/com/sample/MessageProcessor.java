@@ -1,4 +1,4 @@
-package com.example.myapexapp.com.example.myapexapp.kafka;
+package com.sample;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Created by Akshay Harale<akshay.harale@synerzip.com/> on 16/6/16.
  */
 public class MessageProcessor extends BaseOperator {
-    public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+    public final transient DefaultOutputPort<FireLog> output = new DefaultOutputPort<FireLog>();
 
     transient String buTime = "\\s\\((.*?)\\)";
     transient String sourceDestination = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}";
@@ -37,6 +37,7 @@ public class MessageProcessor extends BaseOperator {
             try {
                 if (tuple != null) {
                     Map<String, Object> logs = new HashMap<String, Object>();
+                    FireLog fire = new FireLog();
                     String message = null;
                     try {
                         message = new String(tuple, "UTF-8");
@@ -56,8 +57,9 @@ public class MessageProcessor extends BaseOperator {
 
                         logs.put("sent_bytes", new Long(keyValueMap.get("sent_bytes")));
                         logs.put("rcvd_bytes", new Long(keyValueMap.get("rcvd_bytes")));
-//                        String src_user = keyValueMap.get("src_user");
-//                        logs.put("userId", src_user.substring(1, src_user.indexOf('@')));
+
+                        fire.setSentBytes(new Long(keyValueMap.get("sent_bytes")));
+                        fire.setRcvdBytes(new Long(keyValueMap.get("rcvd_bytes")));
 
                         matcher = butTimePattern.matcher(message);
                         ArrayList<String> buTimeList = new ArrayList<>();
@@ -70,17 +72,23 @@ public class MessageProcessor extends BaseOperator {
                         if (buTimeList.size() == 0) {
                             logs.put("time", new DateTime().getMillis());
                             logs.put("bu", "nobu");
+                            fire.setTime(new DateTime().getMillis());
+                            fire.setBu("nobu");
 
                         } else {
                             String s = buTimeList.get(0);
                             Long time = new DateTime(s.substring(1, s.length() - 1)).getMillis();
                             logs.put("time", time);
+                            fire.setTime(time);
                             if (buTimeList.size() == 1) {
                                 logs.put("bu", "nobu");
+                                fire.setBu("nobu");
                             } else {
                                 String fullBuName = buTimeList.get(1);
+                                // System.out.println("***********************************" + fullBuName + "********************************");
                                 String bu = fullBuName.substring(1, fullBuName.indexOf("-"));
                                 logs.put("bu", bu);
+                                fire.setBu(bu);
                             }
                         }
 
@@ -92,16 +100,22 @@ public class MessageProcessor extends BaseOperator {
                         if (sdList.size() == 0) {
                             logs.put("userIp", "");
                             logs.put("destinationIp", "");
+                            fire.setUserIp("");
+                            fire.setDestinationIp("");
                         } else {
                             if (sdList.size() == 1) {
                                 String userIp = sdList.get(0);
                                 logs.put("userIp", userIp);
                                 logs.put("destinationIp", "");
+                                fire.setUserIp(userIp);
+                                fire.setDestinationIp("");
                             } else {
                                 String userIp = sdList.get(0);
                                 String destIp = sdList.get(1);
                                 logs.put("userIp", userIp);
                                 logs.put("destinationIp", destIp);
+                                fire.setUserIp(userIp);
+                                fire.setDestinationIp(destIp);
                             }
                         }
 
@@ -112,13 +126,17 @@ public class MessageProcessor extends BaseOperator {
                         }
                         if (uidList.size() == 0) {
                             logs.put("userId", "");
+                            fire.setUserId("");
                         } else {
                             String uidString = uidList.get(0);
                             String uid = uidString.substring(1, uidString.indexOf('@'));
                             logs.put("userId", uid);
+                            fire.setUserId(uid);
                         }
-                        logs.put("uuid", UUID.randomUUID().toString());
-                        output.emit(logs);
+                        String uuid = UUID.randomUUID().toString();
+                        logs.put("uuid", uuid);
+                        fire.setUuid(uuid);
+                        output.emit(fire);
                     }
                 }
             } catch (Exception e) {
